@@ -1,0 +1,136 @@
+\documentclass[]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{hyperref}
+
+
+% commands
+\newcommand{\bra}[1]{\left\langle #1 \right|}
+\newcommand{\ket}[1]{\left| #1 \right\rangle}
+\newcommand{\braket}[2]{\left\langle #1 \middle| #2 \right\rangle}
+\newcommand{\s}[1]{\left\{ #1 \right\}}
+\newcommand{\p}[1]{\left( #1 \right)}
+\newcommand{\bk}[1]{\left[ #1 \right]}
+\newcommand{\w}[1]{\mathbf{#1}}
+\newcommand{\parfr}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\II}{\mathbb{I}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\Kp}{\mathcal{K}}
+
+% math operators
+\DeclareMathOperator\arctanh{arctanh}
+\DeclareMathOperator\Tr{Tr}
+
+
+%opening
+\title{Introduction to the Koopman Operator, the VAMP Score, and VAMPNets}
+\author{Phillip Bement}
+
+\begin{document}
+
+\maketitle
+
+\section{The Koopman Operator}
+
+\subsection{defining the Koopman operator}
+
+Consider any Markov chain. Examples of Markov chains:
+
+$\bullet$ A Markov chain with a finite number of states. The probabilities for the transitions between states are given by the stochastic transition matrix $\w{S}$.
+
+$\bullet$ Brownian motion. Here the number of states is infinite. Time is continuous, so to get an actual Markov chain, we pick a discrete time step $\Delta t$ and only look at the particle in evenly spaced intervals of $\Delta t$ to see how it has moved.
+
+$\bullet$ Classical dynamics on a continuous phase space. Again, we have to pick a time spacing $\Delta t$. Deterministic dynamics are a special case of stochastic dynamics.
+
+$\bullet$ Dynamics of a polymer interacting with its environment. This is like classical dynamics, but with randomness introduced because of the interaction with the environment. Again, we still need to introduce a $\Delta t$. Often, the polymer is modelled as occupying a finite volume, often a box with cyclic boundary conditions.
+
+From the last 3 examples, we can see that most systems we encounter in physics can be modelled as Markov chains.
+
+If we are lucky, the dynamics of the system we are studying will be linear. This makes the system easier (or in many cases, {\em possible at all}) to solve analytically. But some systems have non-linear dynamics. The non-linear dynamics make them quite difficult to study.
+
+The Koopman operator approach gives us a way around this issue: We can linearize the problem by considering functions on the state space rather than individual states in the state space.
+
+Suppose that states of the system are denoted by points $\w{x}\in X$ where $X$ is the set of all possible system states (in classical physics, it might represent the phase space of the system). Then the Markov chain dynamics are defined by a probability (density) $p(\w{x}_{t+1}|\w{x}_{t})$. To define the Koopman operator, we should then start considering the vector space $\CC^X$, the space of functions on $X$. Starting from a probability distribution $q_0$ at time $t$, the distribution $q_1$ at time $t+1$ is given by:
+
+$$
+q_1(\w{x}) = \int_X q_0(\w{y})d\w{y} p(\w{x} | \w{y})
+$$
+
+By inspecting this formula, we can see that $q_1$ considered as a function/vector is linear in $q_0$. The Koopman operator approach then is to name this linear operator $\Kp$. We can then write the above equation as $q_1 = \Kp q_0$, with $\Kp$ being an operator on the vector space of functions. (By which we mean reasonably nice functions; as physicists we won't worry about what exactly that means in mathematical terms.) Since $\Kp$ is an operator on the full vector space, we can use it on functions that aren't proper probability distributions. I.e. they can be unnormalized, or have negative or even complex values. We'll write the result of multiplying $\Kp$ with a general function $g$ as follows:
+
+$$
+(\Kp g)(x) = \int_X d\w{y} g(\w{y}) p(\w{x}|\w{y})
+$$
+
+Our first example (the Markov chain on a finite state space).
+
+\subsection{equilibrium and inner products}
+
+Some Markov chains approach an equilibrium if you let them evolve for long enough. Some do not. For example, in classical mechanics, the dynamics are reversible, so that even after a large amount of time, the starting conditions can still be deduced by just looking at the current state of the system. So classical physics is not a case where equilibrium is approached. The fact that the dynamics is deterministic and reversible prevents it. Brownian motion is not deterministic, but it also does not give an equilibrium distribution. The variance of the particle position increases without bound.
+
+A polymer interacting with its environment (our 4th example above) will approach an equilibrium distribution, $q$. This is defined by:
+
+$$
+q(\w{x}) = \int_X d\w{y} q(\w{y}) p(\w{x}|\w{y})
+$$
+
+$$
+\text{i.e. } \hspace{1cm} \Kp q = q
+$$
+
+For systems that do indeed approach equilibrium, this should uniquely define $q$ once we impose positivity and normalization.
+
+Once we have an equilibrium distribution, we get a natural inner product on the function space $\CC^X$:
+
+$$
+\braket{g_1}{g_2} = \int_X d\w{x} g_1(\w{x}) g_2(\w{x}) q(\w{x}) = \langle g_1 g_2 \rangle_q
+$$
+
+This gives us a notion of orthogonality of functions, which will be helpful when we move ahead towards defining the VAMP score. But this depended on having access to an equilibrium distribution.
+
+\subsection{example: the Ornstein-Uhlenbeck process}
+
+% TODO
+
+NOTE: Here should present the singular-value decomposition for the O-U process and its solution in terms of Hermite polynomials.
+
+NOTE: Should also write several paragraphs about the fact that coordinates are all polynomials in $x$ and so the coordinates are redundant (they form a 1d curve in terms of which coordinate vectors are actually attainable). Should also maybe note the effect this has on what the best prediction of future coordinates should be given the current coordinates.
+
+\section{The VAMP Score}
+\section{VAMPNets}
+\section{Extra Notes}
+
+Ornstein Uhlenbeck in 2D ($k_x=k_y$). First two Koopman coordinates (i.e. Koopman singular functions) are $x$ and $y$.
+
+Restricting to just these coordinates, is this the ``density matrix''?
+
+$$
+\rho=\begin{pmatrix}
+	x & 0 \\
+	0 & y
+\end{pmatrix}
+$$
+
+with coordinate operators:
+
+$$
+\w{X} = \begin{pmatrix}
+	1 & 0 \\
+	0 & 0
+\end{pmatrix}
+\hspace{1cm}
+\w{Y} = \begin{pmatrix}
+	0 & 0 \\
+	0 & 1
+\end{pmatrix}
+$$
+
+so that $\langle \w{A} \rangle = \Tr\bk{\w{A}\rho}$
+
+
+\end{document}
