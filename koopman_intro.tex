@@ -423,7 +423,7 @@ $$
 \langle H_n(x_{\Delta t}) \rangle = \p{\Kp H_n}(x_0) = \exp(-n\Delta t) H_n(x_0)
 $$
 
-Does this mean that if we know $H_1(x_0)$, $H_2(x_0)$, $H_3(x_0)$, we should predict
+Similarly, if we know $H_1(x_0)$, $H_2(x_0)$, $H_3(x_0)$, we should predict:
 
 $$
 \begin{Bmatrix}
@@ -433,11 +433,7 @@ $$
 \end{Bmatrix}
 $$
 
-? The only coordinate in the problem is $x$, and the Hermite polynomials represent the information in this coordinate in a redundant way. Just knowing $H_1(x_0)$ is enough to fully determine $x_0$.
-
-% TODO: check on what the answer should be here...
-
-%TODO: finish writing this part. Should also maybe note the effect this has on what the best prediction of future coordinates should be given the current coordinates.
+Interestingly, the only coordinate in the problem is $x$, and the Hermite polynomials represent the information in this coordinate in a redundant way. Just knowing $H_1(x_0)$ is enough to fully determine $x_0$. So even just knowing $H_1(x)$ would be enough to make these predictions. But the {\em way} in which we'd make the predictions is still by computing $H_2(x_0)$ and $H_3(x_0)$.
 
 \subsection{product theorem for independent eigenfunctions}
 
@@ -447,6 +443,31 @@ $$
 \Kp g_1 = \lambda_1 g_1 \hspace{1cm} \Kp g_2 = \lambda_2 g_2
 $$
 
+then we can consider the product function $g_1g_2$ defined by $(g_1g_2)(\w{x}) = g_1(\w{x})g_2(\w{x})$. Then:
+
+$$
+\p{\Kp g_1g_2}(\w{x}_0) = \langle g_1(\w{x}_{\Delta t})g_2(\w{x}_{\Delta t})\rangle
+$$
+
+now suppose that the values of $g_1(\w{x}_{\Delta t})$ and $g_2(\w{x}_{\Delta t})$ are statistically independent of each other, conditional on $\w{x}_0$. This could happen if the system is deterministic, for example. Or if the eigenfunctions only depend on non-interacting modes. Then:
+
+$$
+\p{\Kp g_1g_2}(\w{x}_0) = \langle g_1(\w{x}_{\Delta t})\rangle\langle g_2(\w{x}_{\Delta t})\rangle
+$$
+
+$$
+= (\Kp g_1)(\w{x}_0) \cdot (\Kp g_2)(\w{x}_0)
+$$
+
+$$
+= \lambda_1\lambda_2 g_1(\w{x}_0) g_2(\w{x}_0)
+$$
+
+$$
+\Kp g_1g_2 = \lambda_1\lambda_2 g_1 g_2
+$$
+
+So if this independence condition is met, then $g_1g_2$ is also an eigenfunction of $\Kp$ with eigenvalue $\lambda_1\lambda_2$.
 
 
 
