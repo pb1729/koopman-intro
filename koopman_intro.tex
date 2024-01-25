@@ -57,6 +57,10 @@ The Koopman operator approach gives us a way around this issue: We can linearize
 
 Suppose that states of the system are denoted by points $\w{x}\in X$ where $X$ is the set of all possible system states (in classical physics, it might represent the phase space of the system). Then the Markov chain dynamics are defined by a probability (density) $p(\w{x}_{t+1}|\w{x}_{t})$. To define the Koopman operator, we should then start considering the vector space $\CC^X$, the space of functions on $X$.
 
+\begin{figure}[h!]
+	\includegraphics[width=\textwidth]{koopman_definition_diagram.png}
+\end{figure}
+
 Let $g:X\to\CC$ be any function on system states. Say that we know the system state at time $t$ is $\w{x}_t$. Then $g(\w{x}_t)$ is known. Now suppose we allow the system to evolve for time $\Delta t$ to state $\w{x}_{t+\Delta t}$. In general this evolution is stochastic. Then it turns out that we can think of $\langle g(\w{x}_{t+\Delta t})\rangle$ itself as some function of $\w{x}_t$.
 
 Then there is some operator $\Kp$ that maps $g$ to $\langle g(\w{x}_{t+\Delta t})\rangle$. Using the transition probabilities, we can write this as follows:
@@ -480,7 +484,22 @@ So if this independence condition is met, then $g_1g_2$ is also an eigenfunction
 
 % TODO: though it should also be noted that the eigenvalue form is easy to exponentiate, which is good when time is continuous
 
+\subsection{example: linear ideal polymer}
+
+This examples shows the application of the product theorem for eigenvalues.
+
+\begin{figure}[h!]
+	\includegraphics[width=\textwidth]{polymer_levels.png}
+\end{figure}
+
 \section{The VAMP Score}
+
+For continuous systems, the Koopman operator will be infinite dimensional. To make use of the theory on a finite computer, we can just take the $n$ largest singular values of $\Kp$ and work with an approximation of the Koopman operator using only the top $n$ singular values and their corresponding singular functions.
+
+The singular value decomposition can be written as a maximization problem.
+
+% TODO: make sure to mention relevance of orthogonality
+
 \section{VAMPNets}
 \section{Extra Notes}
 
