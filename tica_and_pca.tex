@@ -1,0 +1,229 @@
+\documentclass[]{scrartcl}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{hyperref}
+
+
+% commands
+\newcommand{\bra}[1]{\left\langle #1 \right|}
+\newcommand{\ket}[1]{\left| #1 \right\rangle}
+\newcommand{\braket}[2]{\left\langle #1 \middle| #2 \right\rangle}
+\newcommand{\s}[1]{\left\{ #1 \right\}}
+\newcommand{\p}[1]{\left( #1 \right)}
+\newcommand{\bk}[1]{\left[ #1 \right]}
+\newcommand{\w}[1]{\mathbf{#1}}
+\newcommand{\parfr}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\II}{\mathbb{I}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\Kp}{\mathcal{K}}
+\newcommand{\h}{\hspace{0.3em}}
+
+% math operators
+\DeclareMathOperator\arctanh{arctanh}
+\DeclareMathOperator\Tr{Tr}
+
+
+%opening
+\title{TICA vs Principal Components for Gaussian Chain}
+
+\begin{document}
+	
+\maketitle
+
+Consider Brownian dynamics for a simple Gaussian chain of length $N$. Suppose all the beads in the chain are identical. Let the coordinates of the atoms be $\w{x}_n$ for $n = 1\dots N$. The potential energy is:
+
+$$
+U = \sum_{n=1}^{N-1} \frac{k}{2}\p{\w{x}_n - \w{x}_{n+1}}^2
+$$
+
+for spring constant $k$. We can stack all the coordinates into a vector $\w{X}$ and write this in terms of a spring matrix $K$:
+
+$$
+U = \w{X}^TK\w{X}
+$$
+
+Note that $K^T = K$. $K$ can be diagonalized by a discrete cosine transform (DCT II).
+
+$$
+K = U^T\Lambda U
+$$
+
+The transformed modes are given by $U\w{X}$ (where $j\in\s{1,2,3}$ indexes the 3 dimensions of space):
+
+$$
+\w{u}_{0 + j} =
+\sqrt{\frac{1}{N}} \sum_{m=0}^{N-1}
+\w{\hat e}_m\otimes \w{\hat e}_j
+$$
+
+and for $n>1$:
+
+$$
+\w{u}_{3n + j} =
+\sqrt{\frac{2}{N}} \sum_{m=0}^{N-1}
+\w{\hat e}_m\otimes \w{\hat e}_j
+\cos\p{\frac{\pi (m+\frac{1}{2}) n}{N}}
+$$
+
+Note that this means $U$ is orthogonal and thus this is a proper diagonalization. And the eigenvalues are given by:
+
+$$
+\lambda_{3n+j} = 4\sin^2\p{\frac{n\pi}{2N}}
+$$
+
+Note the 3-way degeneracy induced by the dimension of space.
+
+We'll consider Brownian dynamics on this system. So the state of the system at a given time is completely described by the position, and there is no velocity coordinate. We'll assume that the Brownian noise on each bead is the same:
+
+$$
+\parfr{\w{X}}{t} = -K\w{X} + \parfr{\w{W}}{t}
+$$
+
+where $\w{W}$ is a vector of Wiener processes (Brownian motion).
+
+\section{Principal Component Analysis}
+
+Principal component analysis looks at the distribution $q(\w{X})$ of coordinates of the system at equilibrium. So we should compute the equilibrium distribution as follows:
+
+$$
+\parfr{q}{t} = \nabla\cdot\p{K\w{X}\h q} + \frac{1}{2}\nabla^2 q = 0
+$$
+
+If we write:
+
+$$
+q(\w{X}) \sim \exp\p{-\w{X}^T K \w{X}}
+$$
+
+then:
+
+$$
+\nabla q = -2K\w{X}\h q
+$$
+
+$$
+\nabla^2 q = 2\p{-\Tr K + 2\w{X}^T K^2 \w{X}} q
+$$
+
+$$
+\nabla\cdot\p{K\w{X}\h q} = \p{\Tr K -2\w{X}^TK^2\w{X}}q
+$$
+
+$$
+\parfr{q}{t} = \p{\Tr K -2\w{X}^TK^2\w{X}} q + 
+\p{-\Tr K + 2\w{X}^T K^2 \w{X}} q = 0
+$$
+
+So the equilibrium distribution is indeed:
+
+$$
+q(\w{X}) = \exp\p{-\w{X}^T K \w{X}}
+$$
+
+This is a multivariate Gaussian distribution. Now we should do principal component analysis on the correlation matrix. This is given by:
+
+$$
+\frac{1}{2}C^{-1} = K
+$$
+
+i.e.
+
+$$
+C = \frac{1}{2} K^{-1} = U^T \frac{1}{2}\Lambda^{-1} U
+$$
+
+This is the singular value decomposition of $C$. Thus, if we do principle component analysis on the correlation matrix, we'll find that the singular values are given by:
+
+$$
+\sigma_{3n + j} = \frac{1}{2\lambda_{3n + j}}
+$$
+
+$$
+\sigma_{3n + j} = \frac{1}{8\sin^2\p{\frac{n\pi}{2N}}}
+$$
+
+And of course since the matrix $U$ is the same, the modes are given by the same $\w{u}_{3n+j}$ vectors as we saw above.
+
+Note that we'll have to handle the case of $n=0$ specially, since $\lambda_{0+j} = 0$, and so $\sigma_{0+j}=\infty$. This mode corresponds to the center of mass of the chain. Since the chain can keep on diffusing indefinitely, the equilibrium variance in center of mass is infinite. We can make it finite by introducing a weak harmonic potential to confine the chain to a localized region of space.
+
+In any case, we can see that the principal component analysis of the dynamics of the Gaussian chain results in a Rouse mode decomposition.
+
+\section{TICA}
+
+The TICA process consists of 2 steps. First, a whitening transformation, then a correlation analysis.
+
+The whitening transformation just asks us to perform the PCA like we did above, and then transform the coordinates such that their correlation matrix is the identity $\II$.
+
+Recall that we had:
+
+$$
+q(\w{X}) \sim \exp(-\w{X}^T K \w{X}) = \exp(-\w{X}^T U^T \Lambda U \w{X})
+$$
+
+if we write the transformed coordinates as:
+
+$$
+\w{X} = U^T\frac{1}{\sqrt{2}}\Lambda^{-1/2} \w{Y}
+$$
+
+then:
+
+$$
+q(\w{Y}) \sim \exp\p{-\frac{1}{2}\w{Y}^T\w{Y}}
+$$
+
+which has the desired covariance matrix $\II$. The next step is to measure the correlation between the coordinates $\w{Y}$ at different time steps. We pick an interval of time $\Delta t$ and then measure:
+
+$$
+M = \langle \w{Y}(t + \Delta t) \w{Y}(t)^T \rangle
+$$
+
+Here, we need to understand the dynamics of the system. The equation of motion is:
+
+$$
+\parfr{\w{X}}{t} = -K\w{X} + \parfr{\w{W}}{t}
+$$
+
+Or in terms of $\w{Y}$:
+
+$$
+U^T\frac{1}{\sqrt{2}}\Lambda^{-1/2}
+\parfr{\w{Y}}{t} = -U^T\Lambda UU^T\frac{1}{\sqrt{2}}\Lambda^{-1/2}\w{Y} + \parfr{\w{W}}{t}
+$$
+
+$$
+\Lambda^{-1/2}
+\parfr{\w{Y}}{t} = -\Lambda^{1/2}\w{Y} + \sqrt{2}U\parfr{\w{W}}{t}
+$$
+
+Then we can see that since $U\w{W}$ is equivalent to $\w{W}$ because $U$ is orthogonal, the equation decomposes into 1-dimensional equations:
+
+$$
+\parfr{y_{3n+j}}{t} = -\lambda_{3n+j} y_{3n+j} + \sqrt{2\lambda_{3n+j}}\parfr{W}{t}
+$$
+
+This is an individual Ornstein-Uhlenbeck process. So we can see that the dynamics decomposes into independent processes, and thus the correlation matrix $M$ is diagonal in terms of the $\w{Y}$ coordinates.
+
+The time-lagged correlation for each process is then given by :
+
+$$
+M_{3n+j, \h 3n+j} = \frac{2\lambda_{3n+j}}{2\lambda_{3n+j}} e^{-\lambda_{3n+j}\Delta t}
+$$
+
+$$
+M_{3n+j, \h 3n+j} = e^{-\lambda_{3n+j}\Delta t} = \exp\p{-4\Delta t\sin^2\p{\frac{n\pi}{2N}}}
+$$
+
+
+
+
+
+
+\end{document}
